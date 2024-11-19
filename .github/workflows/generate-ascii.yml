@@ -9,18 +9,26 @@ jobs:
         - name: Checkout repo
           uses: actions/checkout@v4
 
-        - name: Execute Shell Script
-          run: bash ascii-generate.sh
+        - name: Install Cowsay
+          run: sudo apt-get install cowsay -y
+        
+        - name: Dragon File Generation
+          run: cowsay -f dragon "Run for cover, I am a DRAGON...RAWR" >> dragon.txt
+        
+        - name: Upload Dragon File
+          uses: actions/upload-artifact@v3
+          with:
+            name: dragon_text_file
+            path: dragon.txt
 
     test_job:
         needs: build_job
         runs-on: ubuntu-latest
         steps:
-        - name: Checkout repo
-          uses: actions/checkout@v4
-
-        - name: Sleep 10
-          run: sleep 10
+        - name: Download dragon textfile
+          uses: actions/download-artifact@v3
+          with:
+            name: dragon_text_file
         
         - name: Test File Exists
           run: grep -i "dragon" dragon.txt
@@ -29,8 +37,10 @@ jobs:
         needs: test_job
         runs-on: ubuntu-latest
         steps:
-        - name: Checkout repo
-          uses: actions/checkout@v4
+        - name: Download dragon textfile
+          uses: actions/download-artifact@v3
+          with:
+            name: dragon_text_file
         
         - name: Read File
           run: cat dragon.txt
